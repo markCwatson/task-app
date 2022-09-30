@@ -34,8 +34,25 @@ router.get('/tasks/:id', auth, async (req, res) => {
 })
 
 router.get('/tasks', auth, async (req, res) => {
+    const return_limit = parseInt(req.query.limit)
+    const skip_num = parseInt(req.query.skip)
+    const query = req.query.completed === 'true'
+    const sort = {}
+
+    if (req.query.sortBy) {
+        const input = req.query.sortBy.split(':')
+        sort[input[0]] = input[1] === 'desc' ? -1 : 1
+    }
+
     try {
-        const task = await Task.find({ owner: req.user._id })
+        const task = await Task.find({ 
+            owner: req.user._id, 
+            completed: query 
+        }).setOptions({ 
+            limit: return_limit, 
+            skip: skip_num ,
+            sort
+        })
 
         if (!task) {
             return task.status(404).send()
