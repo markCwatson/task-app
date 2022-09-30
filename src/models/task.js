@@ -1,6 +1,6 @@
 import mongoose from 'mongoose'
 
-const task_schema = new mongoose.Schema({
+const taskSchema = new mongoose.Schema({
     description: {
         type: String,
         required: true,
@@ -19,6 +19,6 @@ const task_schema = new mongoose.Schema({
     timestamps: true
 })
 
-const Task = mongoose.model('Task', task_schema)
+const Task = mongoose.model('Task', taskSchema)
 
 export { Task }

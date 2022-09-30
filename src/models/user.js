@@ -5,7 +5,7 @@ import jwt from 'jsonwebtoken'
 
 import { Task } from './task.js'
 
-const user_schema = new mongoose.Schema({
+const userSchema = new mongoose.Schema({
     name: {
         type: String,
         required: true,
@@ -48,28 +48,32 @@ const user_schema = new mongoose.Schema({
             type: String,
             required: true
         }
-    }]
+    }],
+    avatar: {
+        type: Buffer
+    }
 }, {
     timestamps: true
 })
 
-user_schema.virtual('tasks', {
+userSchema.virtual('tasks', {
     ref: 'Task',
     localField: '_id',
     foreignField: 'owner'
 })
 
-user_schema.methods.toJSON = function () {
-    const user_object = this.toObject()
+userSchema.methods.toJSON = function () {
+    const userObject = this.toObject()
 
-    delete user_object.password
-    delete user_object.tokens
+    delete userObject.password
+    delete userObject.tokens
+    delete userObject.avatar
 
-    return user_object
+    return userObject
 }
 
 // Genrate JSON Web Token
-user_schema.methods.generateAuthToken = async function () {
+userSchema.methods.generateAuthToken = async function () {
     const token = jwt.sign({ _id: this._id.toString()}, 'thisisasecrete')
     this.tokens = this.tokens.concat({ token })
 
@@ -78,7 +82,7 @@ user_schema.methods.generateAuthToken = async function () {
     return token
 }
 
-user_schema.statics.findByCredentials = async (email, password) => {
+userSchema.statics.findByCredentials = async (email, password) => {
     const user = await User.findOne({ email })
 
     if (!user) {
@@ -96,7 +100,7 @@ user_schema.statics.findByCredentials = async (email, password) => {
 
 
 // Hash password
-user_schema.pre('save', async function (next) {
+userSchema.pre('save', async function (next) {
     if (this.isModified('password')) {
         this.password = await bcrypt.hash(this.password, 8)
     }
@@ -105,12 +109,12 @@ user_schema.pre('save', async function (next) {
 })
 
 // Delete user tasks when user is removed
-user_schema.pre('remove', async function (next) {
+userSchema.pre('remove', async function (next) {
     await Task.deleteMany({ owner: this._id })
 
     next()
 })
 
-const User = mongoose.model('User', user_schema)
+const User = mongoose.model('User', userSchema)
 
 export { User }

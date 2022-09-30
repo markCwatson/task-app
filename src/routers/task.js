@@ -34,8 +34,8 @@ router.get('/tasks/:id', auth, async (req, res) => {
 })
 
 router.get('/tasks', auth, async (req, res) => {
-    const return_limit = parseInt(req.query.limit)
-    const skip_num = parseInt(req.query.skip)
+    const returnLimit = parseInt(req.query.limit)
+    const skipNum = parseInt(req.query.skip)
     const query = req.query.completed === 'true'
     const sort = {}
 
@@ -49,8 +49,8 @@ router.get('/tasks', auth, async (req, res) => {
             owner: req.user._id, 
             completed: query 
         }).setOptions({ 
-            limit: return_limit, 
-            skip: skip_num ,
+            limit: returnLimit, 
+            skip: skipNum ,
             sort
         })
 
